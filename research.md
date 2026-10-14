@@ -1,5 +1,5 @@
 # Gain App — Research (Chris Braxton)
-_Research only, Oct 14 2026. Nutrition/menu figures are approximate; check them against the current chain nutrition calculators before putting them in the app._
+_Oct 14 2026. Chain/brand numbers re-verified against official pages (see app Me → Sources); app computes 3,100 kcal / 155 g protein for Chris._ _ Nutrition/menu figures are approximate; check them against the current chain nutrition calculators before putting them in the app._
 
 ## Profile
 Male, 37, 6'0" (182.9 cm), 174 lb (78.9 kg). Goal is 190 lb (+16 lb). He's a hard gainer who lifted for 1 year, took 6 months off, and is restarting now. No injuries. He drives daily to Upland, Torrance, and Hawthorne. Dinner (7–9 PM, cooked by his girlfriend) is his only steady meal.
@@ -31,14 +31,14 @@ Male, 37, 6'0" (182.9 cm), 174 lb (78.9 kg). Goal is 190 lb (+16 lb). He's a har
 - Sat/home (5–25 lb DBs): high-rep or tempo work. Goblet squat, DB floor press, one-arm rows, lateral raises, curls, push-ups to RIR 1–2. Also good for days he can't make the gym.
 
 ## 3. On-the-road eating (SoCal)
-- **In-N-Out**: Double-Double (~610 kcal, 37 g P) or a 3x3 off-menu (~1,000 kcal / ~60 g P). Skip the fries and add a milk.
-- **Chipotle**: burrito bowl with double chicken, rice, beans, cheese, and guac (~1,100–1,200 kcal, ~85 g P)
-- **Subway**: footlong with double meat (chicken or steak) (~800–1,000 kcal, 60–70 g P)
+- **In-N-Out**: Double-Double (610 kcal, 34 g P — verified) or a 3x3 off-menu (~790 kcal / ~48 g P, derived). Skip the fries and add a milk.
+- **Chipotle**: burrito bowl with double chicken, rice, beans, cheese, and guac (~1,040 kcal, 84 g P — verified per-ingredient)
+- **Subway**: footlong Oven Roasted Chicken, double protein (720 kcal, 67 g P — verified)
 - **Chick-fil-A**: 12-ct grilled nuggets plus a chicken sandwich and a milk
-- **El Pollo Loco**: double chicken bowl or half chicken with rice and beans
+- **El Pollo Loco**: Double Chicken Bowl (930 kcal, 74 g P — verified)
 - **7-Eleven / gas stations**: Fairlife Core Power 42 g (230 kcal), Premier Protein, jerky, string cheese, hard-boiled eggs, trail mix, Muscle Milk, PB sandwiches, Greek yogurt, bananas, protein bars (Quest/Barebells ~20 g)
 - **Costco** (stock up for the car): Kirkland protein shakes and bars, rotisserie chicken (~$5), jerky, nut packs, Kirkland trail mix, string cheese, bagels, overnight-oat ingredients. Keep a cooler bag with ice packs in the car.
-- **Homemade ~1,000 kcal shake** (blend the night before, keep in the cooler): 16 oz whole milk (300), 2 scoops whey (240 / 48 g P), 1 banana (105), ½ cup oats (150), 2 tbsp peanut butter (190), 1 tbsp honey (60). Totals ≈ **1,045 kcal, ~70 g P**.
+- **Homemade ~1,000 kcal shake** (blend the night before, keep in the cooler): 16 oz whole milk (300), 2 scoops whey (240 / 48 g P), 1 banana (105), ½ cup oats (150), 2 tbsp peanut butter (190), 1 tbsp honey (60). Totals ≈ **1,050 kcal, ~77 g P** (USDA + ON whey label).
 - **Prep**: Sunday cook-up (rice, chicken thighs, ground beef), breakfast burritos frozen in foil, overnight oats, egg bites. Ask his girlfriend to make extra dinner so there's a next-day lunch.
 
 **Daily schedule (~3,100 kcal / 160 g P)**
