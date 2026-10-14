@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12161c">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gain">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Gain — eat & train tracker</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top"><h1>Gain</h1><button id="who" class="pill hidden" aria-label="Profile"></button></header>
+<main id="view" tabindex="-1"></main>
+<div id="rest" class="rest hidden" role="status"></div>
+<nav class="tabs" id="tabs"></nav>
+<div id="sheet" class="sheet hidden" role="dialog" aria-modal="true"><div class="sheet-card" id="sheetCard"></div></div>
+<div id="toast" class="toast hidden" role="status"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="vendor/supabase.js"></script>
+<script src="sync.js"></script>
+</body>
+</html>
