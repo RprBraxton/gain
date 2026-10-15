@@ -5,6 +5,8 @@ const SB_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJl
 const SYNC_KEY="gain.sync";
 const Y=Object.assign({snap:{},lastPull:null,uploaded:{},lastSync:null},JSON.parse(localStorage.getItem(SYNC_KEY)||"{}"));
 const ySave=()=>localStorage.setItem(SYNC_KEY,JSON.stringify(Y));
+// New collection kinds (e.g. runs): re-pull from start once so rows skipped by an older app version are applied.
+if(Y.kinds!==COLS.join()){Y.lastPull=null;Y.kinds=COLS.join();ySave()}
 let sb=null,session=null,status="local",allowed=null,busy=false,chan=null,lastErr="";
 try{if(window.supabase)sb=supabase.createClient(SB_URL,SB_ANON,{auth:{persistSession:true,autoRefreshToken:true,storageKey:"gain.auth"}})}catch(e){}
 function localEntries(){const out={};for(const c of COLS)for(const[id,r]of Object.entries(S.col[c]))out[c+":"+id]={kind:c,id,data:r,u:r.updated||0};return out}

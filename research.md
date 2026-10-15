@@ -92,3 +92,9 @@ Common complaints across all of them: logging friction, paywalls, nutrition and 
 - In-N-Out nutrition: https://www.in-n-out.com/menu/nutrition-info
 - Chipotle nutrition calculator: https://www.chipotle.com/nutrition-calculator
 - MacroFactor: https://macrofactorapp.com
+
+## 6. Cardio for a hard gainer (added Oct 14 2026)
+- Interference effect is small when cardio is low-volume and kept away from leg days (Wilson 2012 meta: https://pubmed.ncbi.nlm.nih.gov/22002517/). Running interferes more than cycling.
+- Default plan: 1 run day (easy 20–25 min, alternating weekly with 6×1 min intervals) + 8–10 min finishers after the 2 upper days. A 1-mile time trial replaces the run every 2 weeks.
+- Run days add +150 kcal by default (a 2–3 mi run at ~174 lb burns roughly 250–330 kcal gross; ~0.63 kcal/lb/mi net). Configurable per profile.
+- Data: profile.week {lift,run,fin,testEvery,bump} and a "runs" collection {date,type,dist(mi),sec,note}; both sync through the existing entries table.

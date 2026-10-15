@@ -9,7 +9,7 @@ const addDays=(k,n)=>{const d=new Date(k+"T12:00:00");d.setDate(d.getDate()+n);r
 const daysBetween=(a,b)=>Math.round((new Date(b+"T12:00:00")-new Date(a+"T12:00:00"))/864e5);
 const r5=n=>Math.round(n/5)*5, r50=n=>Math.round(n/50)*50;
 const fmtT=t=>{const[h,m]=t.split(":").map(Number);return (h%12||12)+":"+pad(m)+(h<12?" AM":" PM")};
-const COLS=["profiles","logs","weights","workouts","photos","inv","prep","pack","sleep","checkins","foods","ach","grocery"];
+const COLS=["profiles","logs","weights","workouts","photos","inv","prep","pack","sleep","checkins","foods","ach","grocery","runs"];
 let S=JSON.parse(localStorage.getItem(KEY)||"null")||{col:{},deleted:{},active:null};
 for(const c of COLS)S.col[c]=S.col[c]||{};S.deleted=S.deleted||{};
 let tab=(location.hash||"#today").slice(1), ui={};
@@ -34,11 +34,11 @@ function calcTargets(p){const kg=p.weight/2.2046,cm=p.heightIn*2.54;
  const perLb=p.goal==="gain"?0.9:p.goal==="lose"?1.0:0.8,base=p.goal==="lose"?Math.min(p.weight,p.goalWeight||p.weight):p.weight;
  const protein=r5(base*perLb),fat=r5(kcal*.27/9),carbs=r5((kcal-protein*4-fat*9)/4);
  return{bmr:Math.round(bmr),tdee:Math.round(tdee),kcal,protein,fat,carbs,rate}}
-const kcalT=p=>p.kcal+(p.kcalAdj||0);
+const kcalT=(p,d)=>p.kcal+(p.kcalAdj||0)+(d&&typeof cardioBump==="function"?cardioBump(p,d):0);
 // ---------- day totals ----------
 const dayLogs=(d=dkey())=>mine("logs").filter(l=>l.date===d);
 function totals(d){return dayLogs(d).reduce((a,l)=>(a.k+=l.k,a.p+=l.p,a),{k:0,p:0})}
-function slotTarget(p,s){const sum=p.slots.reduce((a,x)=>a+(+x.share||0),0)||1;return{k:r5(kcalT(p)*s.share/sum),p:r5(p.protein*s.share/sum)}}
+function slotTarget(p,s,d=ui.day||dkey()){const sum=p.slots.reduce((a,x)=>a+(+x.share||0),0)||1;return{k:r5(kcalT(p,d)*s.share/sum),p:r5(p.protein*s.share/sum)}}
 // ---------- weight trend & auto-adjust ----------
 function wSeries(){return mine("weights").sort((a,b)=>a.date<b.date?-1:1)}
 function avg7(ws,d){const v=ws.filter(w=>w.date<=d&&daysBetween(w.date,d)<7).map(w=>w.lb);return v.length?v.reduce((a,b)=>a+b)/v.length:null}
@@ -77,10 +77,11 @@ function achievements(){const p=P();if(!p)return[];const a=[],ws=wSeries(),cur=w
  if(p.goal!=="maintain"&&p.goalWeight&&(cur-p.goalWeight)*dir>=0&&ws.length)a.push(["goal","Goal weight reached!","🏆"]);
  const wo=mine("workouts").filter(w=>w.done).length;[[1,"First workout"],[10,"10 workouts"],[25,"25 workouts"],[50,"50 workouts"],[100,"100 workouts"]].forEach(([n,t])=>wo>=n&&a.push(["wo"+n,t,"💪"]));
  const ps=streak(d=>{const t=totals(d);return t.p>=p.protein*.95});[[3,"3-day protein streak"],[7,"7-day protein streak"],[14,"14-day protein streak"],[30,"30-day protein streak"]].forEach(([n,t])=>ps>=n&&a.push(["ps"+n,t,"🥩"]));
- const ks=streak(d=>totals(d).k>=kcalT(p)*.9);[[3,"3 days hitting calories"],[7,"7 days hitting calories"],[21,"21 days hitting calories"]].forEach(([n,t])=>ks>=n&&a.push(["ks"+n,t,"🍽️"]));
+ const ks=streak(d=>totals(d).k>=kcalT(p,d)*.9);[[3,"3 days hitting calories"],[7,"7 days hitting calories"],[21,"21 days hitting calories"]].forEach(([n,t])=>ks>=n&&a.push(["ks"+n,t,"🍽️"]));
  if(mine("inv").length||mine("prep").some(x=>x.cooked))a.push(["prep1","First meal prep","🥡"]);
  if(mine("photos").length)a.push(["ph1","First progress photo","📸"]);
  const prs=prCount();if(prs>=1)a.push(["pr1","First PR","⭐"]);if(prs>=10)a.push(["pr10","10 PRs","🌟"]);
+runAch(a);
  return a}
 function prCount(){const best={};let n=0;mine("workouts").filter(w=>w.done).sort((a,b)=>a.date<b.date?-1:1).forEach(w=>w.sets.filter(s=>s.done&&s.w).forEach(s=>{const v=e1rm(s.w,s.r);if(best[s.ex]&&v>best[s.ex]+.1)n++;if(!best[s.ex]||v>best[s.ex])best[s.ex]=v}));return n}
 function checkAch(){const p=P();if(!p)return;for(const[id,t,ic]of achievements()){const k=S.active+":"+id;if(!S.col.ach[k]){put("ach",{id:k,pid:S.active,date:dkey(),t,ic});toast(`${ic} Unlocked: ${t}`)}}}
@@ -107,7 +108,7 @@ function welcome(){const ps=Object.values(S.col.profiles);return`<section class=
  <button class="btn sec big" data-act="onboard">New profile</button>
  <p class="small mute">Have a family code? Set up a profile, then go to Me → Family sync. Other profiles show up after it syncs.</p></section>`}
 function bar(v,t,cls=""){const pc=Math.min(100,t?v/t*100:0);return`<div class="bar ${cls}"><i style="width:${pc}%"></i></div>`}
-function vToday(){const p=P(),d=ui.day||dkey(),t=totals(d),K=kcalT(p),now=new Date(),isToday=d===dkey();
+function vToday(){const p=P(),d=ui.day||dkey(),t=totals(d),K=kcalT(p,d),now=new Date(),isToday=d===dkey();
  const expected=isToday?p.slots.filter(s=>s.time<=pad(now.getHours())+":"+pad(now.getMinutes())).reduce((a,s)=>a+slotTarget(p,s).k,0):0,behind=r50(expected-t.k);
  const adj=adjustSuggestion(p),dl=deloadDue(p),wToday=mine("weights").find(w=>w.date===d),sl=S.col.sleep[S.active+":"+d];
  return`<div class="daynav"><button class="pill" data-act="day" data-n="-1">‹</button><b>${isToday?"Today":new Date(d+"T12:00").toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"})}</b><button class="pill" data-act="day" data-n="1" ${isToday?"disabled":""}>›</button></div>
@@ -117,6 +118,7 @@ function vToday(){const p=P(),d=ui.day||dkey(),t=totals(d),K=kcalT(p),now=new Da
  </section>
  ${adj&&!p.autoAdjust?`<section class="card warn"><b>Calorie check:</b> ${esc(adj.why)}. Suggest ${adj.d>0?"+":""}${adj.d} kcal/day.<button class="btn" data-act="applyAdj">Apply</button></section>`:""}
  ${dl?`<section class="card warn">🧘 Deload suggested: ${esc(dl)}. Go to Train to start a deload week.</section>`:""}
+ ${cardioToday(p,d)}
  ${p.slots.map(s=>{const st=slotTarget(p,s),ls=dayLogs(d).filter(l=>l.slot===s.id),k=ls.reduce((a,l)=>a+l.k,0),pr=ls.reduce((a,l)=>a+l.p,0);
   return`<section class="card slot ${k>=st.k*.8?"done":""}"><div class="sh"><div><span class="time">${fmtT(s.time)}</span><h3>${esc(s.n)}</h3><p class="small mute">${esc(s.hint||"")} · goal ~${st.k} kcal / ${st.p} g</p></div><button class="btn check" data-act="logSlot" data-slot="${s.id}" aria-label="Log ${esc(s.n)}">${k>=st.k*.8?"✓":"+"}</button></div>
   ${ls.map(l=>`<div class="li"><span>${esc(l.n)}</span><span>${l.k} · ${l.p}g <button class="x" data-act="delLog" data-id="${l.id}" aria-label="Remove">✕</button></span></div>`).join("")}${ls.length?`<p class="small mute">${k} kcal · ${pr} g</p>`:""}</section>`}).join("")}
@@ -168,8 +170,10 @@ function vTrain(){const p=P(),cur=mine("workouts").find(w=>!w.done),dl=deloadDue
  ${p.equipment!=="gym"?`<button class="btn sec" data-act="startWo" data-day="HD">Home dumbbell day instead</button>`:""}
  <details><summary>Pick another day</summary>${Object.keys(DAYS).map(k=>`<button class="btn ghost sm" data-act="startWo" data-day="${k}">${DAYS[k].n}</button>`).join("")}</details>
  <label class="chk"><input type="checkbox" id="dlChk" ${dl?"checked":""}> Deload session (half sets)</label></section>
+ ${vWeek(p)}
  <section class="card"><h3>Hard sets this week</h3><p class="small mute">Aim ~10–20 per muscle (start 8–10 your first 2 weeks back).</p>${["chest","back","shoulders","arms","quads","hams","calves","core"].map(m=>`<div class="li"><span>${m}</span><span>${wk[m]||0}</span></div>${bar(wk[m]||0,12)}`).join("")}</section>
  <section class="card"><h3>Strength trend (est. 1-rep max)</h3><select id="liftSel" data-act="liftSel">${Object.keys(EX).filter(k=>mine("workouts").some(w=>w.sets.some(s=>s.ex===k&&s.done))).map(k=>`<option value="${k}" ${ui.lift===k?"selected":""}>${EX[k].n}</option>`).join("")||"<option>—</option>"}</select>${liftChart(ui.lift||Object.keys(EX).find(k=>mine("workouts").some(w=>w.sets.some(s=>s.ex===k&&s.done))))}</section>
+ ${vRuns()}
  <section class="card"><h3>History</h3>${ws.slice(0,12).map(w=>`<div class="li"><span>${w.date} · ${esc(DAYS[w.day]?.n||w.day)}${w.deload?" (deload)":""}</span><span>${w.sets.filter(s=>s.done).length} sets <button class="x" data-act="delWo" data-id="${w.id}" aria-label="Delete">✕</button></span></div>`).join("")||"<p class='mute'>No workouts yet.</p>"}</section>`}
 function liftChart(ex){if(!ex||!EX[ex])return"";const pts=mine("workouts").filter(w=>w.done).sort((a,b)=>a.date<b.date?-1:1).map(w=>{const s=w.sets.filter(x=>x.ex===ex&&x.done&&x.w);return s.length?[new Date(w.date).getTime(),Math.max(...s.map(x=>e1rm(x.w,x.r)))]:null}).filter(Boolean);
  return lineChart([{pts,cls:"ln",dots:1}],{fmt:v=>Math.round(v)+" lb"})}
@@ -194,6 +198,7 @@ function vProgress(){const p=P(),ws=wSeries(),r=trendRate(),cur=ws.length?ws.at(
  <div class="row"><input id="wIn2" type="number" inputmode="decimal" step="0.1" placeholder="lb"><input id="wD" type="date" value="${dkey()}"><button class="btn" data-act="logW2">Add</button></div>
  <p class="small">Target now: <b>${kcalT(p)} kcal</b>${p.kcalAdj?` (base ${p.kcal} ${p.kcalAdj>0?"+":""}${p.kcalAdj} auto-adjust)`:""} · ${p.protein} g protein · auto-adjust ${p.autoAdjust?"ON":"off"}</p>
  ${(p.adjLog||[]).slice(-4).reverse().map(a=>`<p class="small mute">${a.date}: ${a.d>0?"+":""}${a.d} kcal — ${esc(a.why)}</p>`).join("")}</section>
+ ${vMile(p)}
  <section class="card"><h2>🏆 Milestones</h2><div class="badges">${ach.map(([id,t,ic])=>`<span class="badge">${ic} ${esc(t)}</span>`).join("")||"<span class='mute'>Log meals, weigh-ins and workouts to unlock.</span>"}</div>
  <p class="small mute">Next: ${p.goal==="maintain"?"keep streaks going":(()=>{const st=p.startWeight||p.weight,m=(cur-st)*(p.goal==="lose"?-1:1),n=Math.floor(Math.max(0,m)/2)*2+2;return`${p.goal==="lose"?"−":"+"}${n} lb (${(n-m).toFixed(1)} to go)`})()}</p></section>
  <section class="card"><h2>📸 Progress photos</h2><label class="btn sec filebtn">Add photo<input type="file" accept="image/*" capture="user" id="phIn" hidden></label>
